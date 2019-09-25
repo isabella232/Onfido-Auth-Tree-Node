@@ -32,20 +32,13 @@ Once built and dropped into ForgeRock 2 nodes will be available.
 
 ### Steps
 
-TODO Instead of building from scratch, upload releases in the Github releases tab and point to it in the docs
 
-1) Configure Maven to be able to access the OpenAM repositories
+1) Download the latest version of the Onfido integration jar from 
+[here](https://github.com/ForgeRock/Onfido-Auth-Tree-Node/releases/tag/v1.0.0).
 
-2) Setup a Maven Project for building the Custom Authentication Node
+2) Copy the jar file to the WEB-INF/lib/ folder where AM is deployed.
 
-3) Run mvn clean install to build the project
-
-5) The project will generate a .jar file containing our custom nodes onfidoRegistrationNode-1.0.0-SNAPSHOT.jar TODO
- Remove Snapshot from jar name (change version in POM)
-
-6) Copy the onfidoRegistrationNode-1.0.0-SNAPSHOT.jar file to the WEB-INF/lib/ folder where AM is deployed
-
-7) Restart the AM for the new plug-in to become available.
+3) Restart the AM for the new plug-in to become available.
 
 **Onfido Registration Node**: Collects and sends the document and biometric to the Onfido Back end. This node
  also uses Onfido's Autofill endpoint to get the User Attributes off the document for possible provisioning later.

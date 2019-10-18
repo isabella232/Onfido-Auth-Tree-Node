@@ -85,8 +85,7 @@ class onfidoAutoFill {
             JsonValue jsonResponse = json(object());
             try {
                 JSONObject jsonObject = new JSONObject(
-                        Objects.requireNonNull(response.body()).string()).getJSONObject("extracted_data")
-                                                                         .getJSONObject("ocr_results");
+                        Objects.requireNonNull(response.body()).string()).getJSONObject("extracted_data");
                 Iterator keys = jsonObject.keys();
                 while (keys.hasNext()) {
                     String key = (String) keys.next();

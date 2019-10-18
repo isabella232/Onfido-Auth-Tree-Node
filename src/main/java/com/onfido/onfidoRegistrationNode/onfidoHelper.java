@@ -109,7 +109,7 @@ class onfidoHelper {
 
     boolean parseReport(JSONArray reports, String[] breakdowns) throws NodeProcessException {
         boolean docResult = false;
-        boolean faceResult = false;
+        boolean faceResult = true;
         for (int n = 0; n < reports.length(); n++) {
 
             try {
@@ -123,7 +123,8 @@ class onfidoHelper {
                         }
                         docResult = true;
                     }
-                } else if (report.getString("name").equals("facial_similarity")) {
+                }
+                else if (report.getString("name").equals("facial_similarity")) {
                     faceResult = report.getString("result").equals("clear");
                 }
 

@@ -23,7 +23,7 @@
     <artifactId>onfidoRegistrationNode</artifactId>
 
     <groupId>com.onfido</groupId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>OnFido Auth Tree Node</name>
     <description>OnFido Auth Tree Node</description>
 
@@ -126,6 +126,18 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <relocations>
+                        <relocation>
+                            <pattern>okhttp3.</pattern>
+                            <shadedPattern>onfido.thirdparty.okhttp3.</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>okio.</pattern>
+                            <shadedPattern>onfido.thirdparty.okio.</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
             </plugin>
         </plugins>
     </build>

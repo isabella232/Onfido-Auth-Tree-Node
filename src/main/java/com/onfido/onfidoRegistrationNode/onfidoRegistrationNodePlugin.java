@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
  */
 public class onfidoRegistrationNodePlugin extends AbstractNodeAmPlugin {
 
-	static private String currentVersion = "1.0.0";
+	static private String currentVersion = "1.0.1";
 	
     /** 
      * Specify the Map of list of node classes that the plugin is providing. These will then be installed and

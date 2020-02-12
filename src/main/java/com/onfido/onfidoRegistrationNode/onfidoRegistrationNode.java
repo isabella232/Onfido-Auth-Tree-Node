@@ -310,7 +310,7 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
         context.sharedState.put(onfidoConstants.ONFIDO_APPLICANT_ID, newApplicant.getId());
         logger.debug("Applicant ID: {}" + applicantId);
         sdkTokenRequest.setApplicantId(applicantId);
-        sdkTokenRequest.setReferrer(config.onfidoJWTreferrer().toString());
+        sdkTokenRequest.setReferrer(config.onfidoJWTreferrer());
         SdkTokenResponse sdkToken;
         try {
             sdkToken = api.generateSdkToken(sdkTokenRequest);

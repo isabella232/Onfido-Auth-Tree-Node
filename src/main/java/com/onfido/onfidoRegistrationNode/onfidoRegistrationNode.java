@@ -117,6 +117,10 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
                 put("cn", onfidoConstants.FIRST_NAME);
                 put("givenName", onfidoConstants.FIRST_NAME);
                 put("sn", onfidoConstants.LAST_NAME);
+                put("postalAddress", "address_line_1");
+                put("city", "address_line_3");
+                put("postalCode","address_line_4");
+                put("stateProvince", "address_line_5");
             }};
         }
 

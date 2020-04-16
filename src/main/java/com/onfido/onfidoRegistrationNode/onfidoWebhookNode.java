@@ -36,6 +36,7 @@ import org.forgerock.openam.cts.exceptions.CoreTokenException;
 import org.forgerock.openam.sm.annotations.adapters.Password;
 import org.forgerock.openam.sm.datalayer.api.query.PartialToken;
 import org.forgerock.openam.tokens.CoreTokenField;
+import org.forgerock.openam.utils.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -221,8 +222,7 @@ public class onfidoWebhookNode extends SingleOutcomeNode {
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new NodeProcessException(e);
         }
-        toHexString(mac.doFinal(data.getBytes()));
-        return signature.equals(toHexString(mac.doFinal(data.getBytes())));
+        return StringUtils.isEqualTo(signature, toHexString(mac.doFinal(data.getBytes())));
     }
 
     private void flagUser(AMIdentity userIdentity, String flag) throws NodeProcessException {

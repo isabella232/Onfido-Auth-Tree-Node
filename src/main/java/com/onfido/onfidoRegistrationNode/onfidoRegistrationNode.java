@@ -30,6 +30,18 @@ import static org.forgerock.json.JsonValue.object;
 import static org.forgerock.openam.auth.node.api.Action.send;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.TextOutputCallback;
+
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
@@ -38,7 +50,9 @@ import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.SharedStateConstants;
 import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.core.CoreWrapper;
 import org.forgerock.openam.sm.annotations.adapters.Password;
+import org.forgerock.openam.utils.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -60,18 +74,6 @@ import com.onfido.models.SdkTokenResponse;
 import com.sun.identity.authentication.callbacks.ScriptTextOutputCallback;
 import com.sun.identity.idm.AMIdentity;
 import com.sun.identity.idm.IdRepoException;
-import com.sun.identity.idm.IdUtils;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.inject.Inject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.TextOutputCallback;
 
 /**
  * TODO Add Javadoc
@@ -82,6 +84,7 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
 
     private final Logger logger = LoggerFactory.getLogger("amAuth");
     private final Config config;
+    private final CoreWrapper coreWrapper;
 
     /**
      * Configuration for the node.
@@ -96,10 +99,12 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
         default boolean JITProvisioning() {
             return false;
         }
+
         @Attribute(order = 250)
         default String onfidoJWTreferrer() {
             return "*://*/*";
         }
+
         @Attribute(order = 300)
         default biometricCheck biometricCheck() {
             return biometricCheck.None;
@@ -119,11 +124,10 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
                 put("sn", onfidoConstants.LAST_NAME);
                 put("postalAddress", "address_line_1");
                 put("city", "address_line_3");
-                put("postalCode","address_line_4");
+                put("postalCode", "address_line_4");
                 put("stateProvince", "address_line_5");
             }};
         }
-
 
 
         @Attribute(order = 600)
@@ -136,23 +140,16 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
             return "Thank you for using Onfido for Identity Verification";
         }
 
-        //TODO Not used
-//        @Attribute(order = 800)
-//        default String onfidoAdvancedConfig() {
-//            return "";
-//        }
-
         @Attribute(order = 900)
         default String onfidoJSURL() {
             return "https://assets.onfido.com/web-sdk-releases/5.2.1/onfido.min.js";
         }
 
-
-    @Attribute(order = 1000)
-    default String onfidoCSSUrl() {
-        return "https://assets.onfido.com/web-sdk-releases/5.2.1/style.css";
+        @Attribute(order = 1000)
+        default String onfidoCSSUrl() {
+            return "https://assets.onfido.com/web-sdk-releases/5.2.1/style.css";
+        }
     }
-}
 
 
     /**
@@ -162,8 +159,9 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
      * @param config The service config.
      */
     @Inject
-    public onfidoRegistrationNode(@Assisted Config config) {
+    public onfidoRegistrationNode(@Assisted Config config, CoreWrapper coreWrapper) {
         this.config = config;
+        this.coreWrapper = coreWrapper;
     }
 
     @Override
@@ -193,10 +191,10 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
             if (!context.request.ssoTokenId.isEmpty()) {
 
                 AMIdentity userIdentity;
+
                 try {
-                    userIdentity =
-                            IdUtils.getIdentity(
-                                    SSOTokenManager.getInstance().createSSOToken(context.request.ssoTokenId));
+                    userIdentity = coreWrapper.getIdentity(
+                            SSOTokenManager.getInstance().createSSOToken(context.request.ssoTokenId));
                 } catch (IdRepoException | SSOException e) {
                     logger.error("Unable to find user identity for user with SSO token: {}",
                                  context.request.ssoTokenId);
@@ -204,10 +202,19 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
                 }
                 JsonValue userAttributes = json(object());
                 try {
-                    //TODO Looks like we are hard coding the mapping here... should this rely on the attribute map?
-                    userAttributes.put(onfidoConstants.FIRST_NAME, userIdentity.getAttribute(config.attributeMappingConfiguration().get(onfidoConstants.FIRST_NAME))
+                    String firstNameAttributeName = "cn";
+                    String lastNameAttributeName = "sn";
+                    for (Map.Entry<String, String> entry : config.attributeMappingConfiguration().entrySet()) {
+                        if (StringUtils.isEqualTo(entry.getValue(), onfidoConstants.FIRST_NAME)) {
+                            firstNameAttributeName = entry.getKey();
+                        }
+                        if (StringUtils.isEqualTo(entry.getValue(), onfidoConstants.LAST_NAME)) {
+                            lastNameAttributeName = entry.getKey();
+                        }
+                    }
+                    userAttributes.put(onfidoConstants.FIRST_NAME, userIdentity.getAttribute(firstNameAttributeName)
                                                                                .iterator().next());
-                    userAttributes.put(onfidoConstants.LAST_NAME, userIdentity.getAttribute(config.attributeMappingConfiguration().get(onfidoConstants.FIRST_NAME))
+                    userAttributes.put(onfidoConstants.LAST_NAME, userIdentity.getAttribute(lastNameAttributeName)
                                                                               .iterator().next());
                     context.sharedState.put(SharedStateConstants.USERNAME, userIdentity.getAttribute(
                             onfidoConstants.UID).iterator().next());
@@ -234,8 +241,10 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
                     //use method that builds json object using keys we already know pass to onfidoUpdateApplicant
                     // method.
                 } catch (SSOException | IdRepoException e) {
-                    logger.error("Unable to store attribute for user");
-                    throw new NodeProcessException(e);
+                    logger.error(
+                            "Unable to store attribute for user. Make sure the configuration for called Onfido " +
+                                    "ApplicantID Attribute is a valid LDAP Attribute",
+                            e);
                 }
 
             }
@@ -254,8 +263,8 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
             if (!config.biometricCheck().toString().equals("None")) {
                 Report report2 = new Report();
                 report2.setName(ONFIDO_FACIAL_REPORT);
-                if(config.biometricCheck().toString().equals("Live")){
-                report2.setVariant("video");
+                if (config.biometricCheck().toString().equals("Live")) {
+                    report2.setVariant("video");
                 }
                 reports.add(report2);
             }
@@ -332,7 +341,7 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
 
         return send(new ArrayList<Callback>() {{
             add(new ScriptTextOutputCallback(
-                    String.format(SETUP_DOM_SCRIPT, config.onfidoJSURL(),config.onfidoCSSUrl(), sdkConfiguration)));
+                    String.format(SETUP_DOM_SCRIPT, config.onfidoJSURL(), config.onfidoCSSUrl(), sdkConfiguration)));
         }}).build();
     }
 

@@ -4,6 +4,7 @@ import static org.forgerock.json.JsonValue.array;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
 
+import org.apache.commons.lang.StringUtils;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.json.JSONException;
@@ -128,39 +129,39 @@ class onfidoAutoFill {
         Applicant applicant = new Applicant();
         Address address = new Address();
         String tempValue;
-        if (!(tempValue = documentAttributes.get("first_name").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty((tempValue = documentAttributes.get("first_name").asString()))) {
             applicant.setFirstName(tempValue);
         }
-        if (!(tempValue = documentAttributes.get("date_of_birth").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty(tempValue = documentAttributes.get("date_of_birth").asString())) {
             applicant.setDob(LocalDate.parse(tempValue));
         }
-        if (!(tempValue = documentAttributes.get("gender").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty((tempValue = documentAttributes.get("gender").asString()))) {
             applicant.setGender(tempValue);
         }
-        if (!(tempValue = documentAttributes.get("last_name").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty((tempValue = documentAttributes.get("last_name").asString()))) {
             applicant.setLastName(tempValue);
         }
-        if (!(tempValue = documentAttributes.get("middle_name").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty((tempValue = documentAttributes.get("middle_name").asString()))) {
             applicant.setMiddleName(tempValue);
         }
         boolean isAddressSet = false;
-        if (!(tempValue = documentAttributes.get("address_line_1").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty((tempValue = documentAttributes.get("address_line_1").asString()))) {
             address.setBuildingNumber(tempValue.replaceAll("[^a-zA-Z]+", "").trim());
             address.setStreet(tempValue.replaceAll("^[0-9]+", "").trim());
             isAddressSet = true;
         }
-        if (!(tempValue = documentAttributes.get("address_line_3").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty((tempValue = documentAttributes.get("address_line_3").asString()))) {
             address.setTown(tempValue);
             isAddressSet = true;
         }
-        if (!(tempValue = documentAttributes.get("address_line_4").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty((tempValue = documentAttributes.get("address_line_4").asString()))) {
             address.setPostcode(tempValue);
             isAddressSet = true;
         }
-        if (!(tempValue = documentAttributes.get("issuing_state").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty((tempValue = documentAttributes.get("issuing_state").asString()))) {
             address.setState(tempValue);
         }
-        if (!(tempValue = documentAttributes.get("issuing_country").asString()).isEmpty()) {
+        if (!StringUtils.isEmpty((tempValue = documentAttributes.get("issuing_country").asString()))) {
             address.setCountry(tempValue);
         }
         if (isAddressSet) {

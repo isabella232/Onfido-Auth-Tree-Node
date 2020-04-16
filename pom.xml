@@ -23,7 +23,7 @@
     <artifactId>onfidoRegistrationNode</artifactId>
 
     <groupId>com.onfido</groupId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>OnFido Auth Tree Node</name>
     <description>OnFido Auth Tree Node</description>
 
@@ -135,6 +135,18 @@
                         <relocation>
                             <pattern>okio.</pattern>
                             <shadedPattern>onfido.thirdparty.okio.</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>io.</pattern>
+                            <shadedPattern>onfido.thirdparty.io.</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.code.gson</pattern>
+                            <shadedPattern>onfido.thirdparty.com.google.code.gson</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>kotlin.</pattern>
+                            <shadedPattern>onfido.thirdparty.kotlin.</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

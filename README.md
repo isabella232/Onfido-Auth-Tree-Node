@@ -34,7 +34,7 @@ Once built and dropped into ForgeRock 2 nodes will be available.
 
 
 1) Download the latest version of the Onfido integration jar from 
-[here](https://github.com/ForgeRock/Onfido-Auth-Tree-Node/releases/tag/v1.0.0).
+[here](https://github.com/ForgeRock/Onfido-Auth-Tree-Node/releases/latest).
 
 2) Copy the jar file to the WEB-INF/lib/ folder where AM is deployed.
 

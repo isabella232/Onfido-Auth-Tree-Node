@@ -91,7 +91,7 @@ public class onfidoWebhookNode extends SingleOutcomeNode {
 
         @Attribute(order = 400)
         default String userFlagAttribute() {
-            return "telephoneNumber";
+            return "carLicense";
         }
 
         @Attribute(order = 450)

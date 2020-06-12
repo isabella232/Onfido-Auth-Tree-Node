@@ -120,5 +120,10 @@ Fill out the URL like below using your own url making sure to have **noSession=t
 
 Also make sure to uncheck everything except for the Check Completed this is the only notification the webhook tree/node needs.
 
+
 After clicking save you will be returned to the screen from the first screen shot in the section and you will be able to take the webhook token to configure the webhook node.
 
+Finally, login to the Access Management Console and navigate to `Configure` -> `Global Services` -> `REST APIs` and
+ disable CSRF Protection ![ScreenShot](./screenshots/csrf.png)
+ 
+ 

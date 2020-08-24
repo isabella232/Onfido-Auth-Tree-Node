@@ -120,7 +120,7 @@ class onfidoAutoFill {
     }
 
     void populateOnfidoApplicant(String applicantID, JsonValue documentAttributes, onfidoRegistrationNode.Config config)
-            throws NodeProcessException {
+            {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
         ApiKeyAuth tokenAuth = (ApiKeyAuth) defaultClient.getAuthentication("Token");
         tokenAuth.setApiKey("token=" + new String(config.onfidoToken()));
@@ -174,7 +174,7 @@ class onfidoAutoFill {
             logger.debug("Result is: {}", result);
         } catch (ApiException e) {
             logger.error("Exception when calling DefaultApi#updateApplicant");
-            throw new NodeProcessException(e);
+            logger.error("Something went wrong calling onfido \nStatus: " + e.getCode() + "\nResponse: \n" + e.getResponseBody());
         }
     }
 

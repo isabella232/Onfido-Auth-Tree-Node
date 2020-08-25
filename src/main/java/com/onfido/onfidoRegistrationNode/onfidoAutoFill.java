@@ -146,7 +146,7 @@ class onfidoAutoFill {
         }
         boolean isAddressSet = false;
         if (!StringUtils.isEmpty((tempValue = documentAttributes.get("address_line_1").asString()))) {
-            address.setBuildingNumber(tempValue.replaceAll("[^a-zA-Z]+", "").trim());
+            address.setBuildingNumber(tempValue.replaceAll("[a-zA-Z]+", "").trim());
             address.setStreet(tempValue.replaceAll("^[0-9]+", "").trim());
             isAddressSet = true;
         }

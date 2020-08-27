@@ -200,53 +200,55 @@ public class onfidoRegistrationNode extends SingleOutcomeNode {
                                  context.request.ssoTokenId);
                     throw new NodeProcessException(e);
                 }
-                JsonValue userAttributes = json(object());
-                try {
-                    String firstNameAttributeName = "cn";
-                    String lastNameAttributeName = "sn";
-                    for (Map.Entry<String, String> entry : config.attributeMappingConfiguration().entrySet()) {
-                        if (StringUtils.isEqualTo(entry.getValue(), onfidoConstants.FIRST_NAME)) {
-                            firstNameAttributeName = entry.getKey();
+                String userName = userIdentity.getName();
+                if (!userName.equals("anonymous")) {
+                    JsonValue userAttributes = json(object());
+                    try {
+                        String firstNameAttributeName = "cn";
+                        String lastNameAttributeName = "sn";
+                        for (Map.Entry<String, String> entry : config.attributeMappingConfiguration().entrySet()) {
+                            if (StringUtils.isEqualTo(entry.getValue(), onfidoConstants.FIRST_NAME)) {
+                                firstNameAttributeName = entry.getKey();
+                            }
+                            if (StringUtils.isEqualTo(entry.getValue(), onfidoConstants.LAST_NAME)) {
+                                lastNameAttributeName = entry.getKey();
+                            }
                         }
-                        if (StringUtils.isEqualTo(entry.getValue(), onfidoConstants.LAST_NAME)) {
-                            lastNameAttributeName = entry.getKey();
-                        }
+                        userAttributes.put(onfidoConstants.FIRST_NAME, userIdentity.getAttribute(firstNameAttributeName)
+                                                                                   .iterator().next());
+                        userAttributes.put(onfidoConstants.LAST_NAME, userIdentity.getAttribute(lastNameAttributeName)
+                                                                                  .iterator().next());
+                        context.sharedState.put(SharedStateConstants.USERNAME, userIdentity.getAttribute(
+                                onfidoConstants.UID).iterator().next());
+                    } catch (IdRepoException | SSOException e) {
+                        logger.error("Unable to map attributes");
+                        throw new NodeProcessException(e);
                     }
-                    userAttributes.put(onfidoConstants.FIRST_NAME, userIdentity.getAttribute(firstNameAttributeName)
-                                                                               .iterator().next());
-                    userAttributes.put(onfidoConstants.LAST_NAME, userIdentity.getAttribute(lastNameAttributeName)
-                                                                              .iterator().next());
-                    context.sharedState.put(SharedStateConstants.USERNAME, userIdentity.getAttribute(
-                            onfidoConstants.UID).iterator().next());
-                } catch (IdRepoException | SSOException e) {
-                    logger.error("Unable to map attributes");
-                    throw new NodeProcessException(e);
+
+
+                    autofill.populateOnfidoApplicant(
+                            context.sharedState.get(onfidoConstants.ONFIDO_APPLICANT_ID).asString(),
+                            userAttributes, config);
+
+                    Map<String, Set> attrMap = new HashMap<String, Set>() {{
+                        put(config.onfidoApplicantIdAttribute(), new HashSet<String>() {{
+                            add(context.sharedState.get(onfidoConstants.ONFIDO_APPLICANT_ID).asString());
+                        }});
+                    }};
+
+                    try {
+                        userIdentity.setAttributes(attrMap);
+                        userIdentity.store();
+                        //get first name and last name from SSO token and update applicant
+                        //use method that builds json object using keys we already know pass to onfidoUpdateApplicant
+                        // method.
+                    } catch (SSOException | IdRepoException e) {
+                        logger.error(
+                                "Unable to store attribute for user. Make sure the configuration for called Onfido " +
+                                        "ApplicantID Attribute is a valid LDAP Attribute",
+                                e);
+                    }
                 }
-
-
-                autofill.populateOnfidoApplicant(
-                        context.sharedState.get(onfidoConstants.ONFIDO_APPLICANT_ID).asString(),
-                        userAttributes, config);
-
-                Map<String, Set> attrMap = new HashMap<String, Set>() {{
-                    put(config.onfidoApplicantIdAttribute(), new HashSet<String>() {{
-                        add(context.sharedState.get(onfidoConstants.ONFIDO_APPLICANT_ID).asString());
-                    }});
-                }};
-
-                try {
-                    userIdentity.setAttributes(attrMap);
-                    userIdentity.store();
-                    //get first name and last name from SSO token and update applicant
-                    //use method that builds json object using keys we already know pass to onfidoUpdateApplicant
-                    // method.
-                } catch (SSOException | IdRepoException e) {
-                    logger.error(
-                            "Unable to store attribute for user. Make sure the configuration for called Onfido " +
-                                    "ApplicantID Attribute is a valid LDAP Attribute",
-                            e);
-                }
-
             }
 
 
